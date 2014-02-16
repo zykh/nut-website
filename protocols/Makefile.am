@@ -14,7 +14,8 @@ PROTOCOLS_FILES =	\
 	sola.html	\
 	us9003.html	\
 	voltronic.html	\
-	voltronic-qs.html
+	voltronic-qs.html	\
+	voltronic-sunny.html
 
 # CSS based simulated frames layout.
 LAYOUT = web-layout
