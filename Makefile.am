@@ -107,7 +107,7 @@ all:	\
 
 # Generate WEBSITE_DEPS & man pages
 prerequisites:
-	cd nut/docs; $(MAKE) $(AM_MAKEFLAGS) html-chunked pdf
+	cd nut/docs; $(MAKE) $(AM_MAKEFLAGS) ASCIIDOC_PARAMS="--attribute use-default-settings" html-chunked pdf
 	cd nut/docs/man; $(MAKE) $(AM_MAKEFLAGS) html-man
 
 $(WEBSITE_FILES): $(LAYOUT).conf
