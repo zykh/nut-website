@@ -1,7 +1,7 @@
 Voltronic Power SUNNY Protocol
 ==============================
 Daniele Pezzini <hyouko@gmail.com>
-v1.0, February 2014
+v1.1, June 2015
 
 // Default options
 // - Labeled lists
@@ -54,42 +54,42 @@ Device status
 --
 .Reply
 ----
-(AAA BBB CCC DDD EEE FFF GGG HHH III JJJ KKK LLL MMM NNN OOO PPP QQQ RRR SSS TTT UUU VVVVVVVVVV
+(AAA.A BBBBBB CC.C DDDD.D EEE.E FFFFF GG.G HHH.H III JJJ.J KKK.K LLL.L MMM.M NNN OOOOO PPPPP QQQQQ RRR.R SSS.S TTT.T UUU.U VWWWWWWWWW
 ----
 .e.g.
 ----
-(100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 118 119 120 0100000000
+(226.1 000378 50.0 0001.7 226.8 00378 49.9 001.6 013 436.4 436.4 052.6 ---.- 077 00920 00292 ----- 196.1 ---.- ---.- 027.0 A---101001
 ----
 
 Where:
 
-+AAA+::		Grid voltage (V)
-+BBB+::		Output power (W)
-+CCC+::		Grid frequency (Hz)
-+DDD+::		Output current (A)
-+EEE+::		AC output voltage R (V)
-+FFF+::		AC output power R (W)
-+GGG+::		AC output frequency (Hz)
-+HHH+::		AC output current R (A)
++AAA.A+::	Grid voltage (V)
++BBBBBB+::	Output power (W)
++CC.C+::	Grid frequency (Hz)
++DDDD.D+::	Output current (A)
++EEE.E+::	AC output voltage R (V)
++FFFFF+::	AC output power R (W)
++GG.G+::	AC output frequency (Hz)
++HHH.H+::	AC output current R (A)
 +III+::		Output load percent (%)
-+JJJ+::		PBUS voltage (V)
-+KKK+::		SBUS voltage (V)
-+LLL+::		Positive battery voltage (V)
-+MMM+::		Negative battery voltage (V)
++JJJ.J+::	PBUS voltage (V)
++KKK.K+::	SBUS voltage (V)
++LLL.L+::	Positive battery voltage (V)
++MMM.M+::	Negative battery voltage (V)
 +NNN+::		Battery capacity (%)
-+OOO+::		PV1 input power (W)
-+PPP+::		PV2 input power (W)
-+QQQ+::		PV3 input power (W)
-+RRR+::		PV1 input voltage (V)
-+SSS+::		PV2 input voltage (V)
-+TTT+::		PV3 input voltage (V)
-+UUU+::		Max temperature (°C)
-+VVVVVVVVVV+::	Device status, where each index (b9..b0) means:
++OOOOO+::	PV1 input power (W)
++PPPPP+::	PV2 input power (W)
++QQQQQ+::	PV3 input power (W)
++RRR.R+::	PV1 input voltage (V)
++SSS.S+::	PV2 input voltage (V)
++TTT.T+::	PV3 input voltage (V)
++UUU.U+::	Max temperature (°C)
++V+::		*{sp}unknown *
++WWWWWWWWW+::	Device status, where each index (b8..b0) means (not supported options have the corresponding indexes filled with `++-++'):
 +
 [cols="^.^1m,.^9"]
 |====
 |bit#	|Description
-|9	|*{sp}unknown *
 |8	a|Connection to the grid status:
 
 	- +0+ -> disconnected
@@ -336,19 +336,20 @@ Operational options (<<protocol,P16>> only)
 --
 .Reply
 ----
-(AxBxCxDxExFxGx
+(AxBxCxDxExFxGxHxIxJx
 ----
 .e.g.
 ----
-(A1B1C1D1E1F0G1
+(A1B0C1D0E1F0G0H0I_J_
 ----
 
 Where:
 
-+A+, ..., +G+::	Available options
++A+, ..., +J+::	Available options
 +x+::		Option status:
 		- +0+ -> disabled
 		- +1+ -> enabled
+		- +_+ -> not supported
 --
 *+ENF<option><action>+*::	Enable (*+<action>+*: +1+) or disable (*+<action>+*: +0+) *+<option>+* option
 
@@ -380,6 +381,9 @@ NOTE:			This option will become ineffective during <<ct,AC charging time>> and t
 --
 [[oops-f]]*+F+*::	Allow battery to feed-in to the grid when PV is available.
 [[oops-g]]*+G+*::	Allow battery to feed-in to the grid when PV is unavailable.
+*+H+*::			*{sp}unknown *
+*+I+*::			*{sp}unknown *
+*+J+*::			*{sp}unknown *
 
 
 Generator as AC source option (<<protocol,P16>> only)
@@ -577,23 +581,23 @@ Where:
 --
 .Reply
 ----
-(AAA BBB CCC DDD EEE FFF GGG HH II J
+(AAA.A BB.B CCC.C DDD.D EEE.E FF.F GGG.G H II J
 ----
 .e.g.
 ----
-(100 101 102 103 104 105 106 07 01 1
+(230.0 50.0 013.0 230.0 013.0 18.0 048.0 1 10 0
 ----
 
 Where:
 
-[[qpiri-#1]]+AAA+::	Nominal grid-connected voltage (V)
-[[qpiri-#2]]+BBB+::	Nominal grid-connected frequency (Hz)
-+CCC+::			Nominal grid-connected current (A)
-+DDD+::			AC output rating voltage (V)
-+EEE+::			AC output rating current (A)
-+FFF+::			Maximum input current for each PV (A)
-+GGG+::			Battery rating voltage (V)
-[[qpiri-#8]]+HH+::	Number of MPP trackers
+[[qpiri-#1]]+AAA.A+::	Nominal grid-connected voltage (V)
+[[qpiri-#2]]+BB.B+::	Nominal grid-connected frequency (Hz)
++CCC.C+::		Nominal grid-connected current (A)
++DDD.D+::		AC output rating voltage (V)
++EEE.E+::		AC output rating current (A)
++FF.F+::		Maximum input current for each PV (A)
++GGG.G+::		Battery rating voltage (V)
+[[qpiri-#8]]+H+::	Number of MPP trackers
 [[qpiri-#9]]+II+::	<<mt,Model type>>:
 			- 00 -> <<grid-tie,Grid-tie>>
 			- 01 -> <<off-grid,Off-grid (/Stand alone)>>
@@ -659,30 +663,33 @@ Default values
 --
 .Reply
 ----
-(AAA BBB CCC DDD EEE FFF GGG HHH III JJJ KKK LLL MMM NNN OO
+(AAA.A BBB.B CC.C DD.D EEE.E FFF.F GG.G HH.H III JJJ KKK LLL MMMMM NNN OO PP QQQ RR
 ----
 .e.g.
 ----
-(100 050 101 051 102 052 103 053 104 054 105 055 106 107 08
+(264.5 184.0 51.5 47.5 264.5 184.0 51.5 47.5 500 090 450 120 03000 253 02 04 --- --
 ----
 
 Where:
 
-+AAA+::	<<gov,Grid output high voltage>> (V)
-+BBB+::	<<gov,Grid output low voltage>> (V)
-+CCC+::	<<gof,Grid output high frequency>> (Hz)
-+DDD+::	<<gof,Grid output low frequency>> (Hz)
-+EEE+::	<<giv,Grid input high voltage>> (V)
-+FFF+::	<<giv,Grid input low voltage>> (V)
-+GGG+::	<<gif,Grid input high frequency>> (Hz)
-+HHH+::	<<gif,Grid input low frequency>> (Hz)
-+III+::	<<pviv,PV input high voltage>> (V)
-+JJJ+::	<<pviv,PV input low voltage>> (V)
-+KKK+::	<<mppv,MPP high voltage>> (V)
-+LLL+::	<<mppv,MPP low voltage>> (V)
-+MMM+::	<<mop,Maximum output power>> (W)
-+NNN+::	<<giav,Max grid input average voltage>> (V)
-+OO+::	<<lst,LCD sleep time>> (units of 30 seconds)
++AAA.A+::	<<gov,Grid output high voltage>> (V)
++BBB.B+::	<<gov,Grid output low voltage>> (V)
++CC.C+::	<<gof,Grid output high frequency>> (Hz)
++DD.D+::	<<gof,Grid output low frequency>> (Hz)
++EEE.E+::	<<giv,Grid input high voltage>> (V)
++FFF.F+::	<<giv,Grid input low voltage>> (V)
++GG.G+::	<<gif,Grid input high frequency>> (Hz)
++HH.H+::	<<gif,Grid input low frequency>> (Hz)
++III+::		<<pviv,PV input high voltage>> (V)
++JJJ+::		<<pviv,PV input low voltage>> (V)
++KKK+::		<<mppv,MPP high voltage>> (V)
++LLL+::		<<mppv,MPP low voltage>> (V)
++MMMMM+::	<<mop,Maximum output power>> (W)
++NNN+::		<<giav,Max grid input average voltage>> (V)
++OO+::		<<lst,LCD sleep time>> (units of 30 seconds)
++PP+::		*{sp}unknown *
++QQQ+::		*{sp}unknown *
++RR+::		*{sp}unknown *
 --
 *+QDI2+*::	Query device for <<reset-to-default,default>> values #2
 +
@@ -819,7 +826,7 @@ Grid output voltage
 ----
 .e.g.
 ----
-(10.0 05.0
+(51.5 47.5
 ----
 
 Where:
@@ -892,7 +899,7 @@ Battery-charging data (<<protocol,P16>> only)
 ----
 .e.g.
 ----
-(10.0 10.1 10.2 10.3
+(00.3 54.0 25.0 55.4
 ----
 
 Where:
@@ -914,7 +921,7 @@ Where:
 ----
 .e.g.
 ----
-(10.0 10.1 102
+(00.0 53.0 060
 ----
 
 Where:
@@ -1023,7 +1030,7 @@ Maximum output power
 ----
 .e.g.
 ----
-(10000
+(03000
 ----
 
 Where:
@@ -1046,7 +1053,7 @@ Maximum power feeding grid
 ----
 .e.g.
 ----
-(10000
+(03000
 ----
 
 Where:
@@ -1357,16 +1364,16 @@ Where:
 --
 .Reply
 ----
-(AAA
+(AAAAAA
 ----
 .e.g.
 ----
-(100
+(005758
 ----
 
 Where:
 
-+AAA+::	Energy produced in the specific day at date *+<date>+* (Wh)
++AAAAAA+::	Energy produced in the specific day at date *+<date>+* (Wh)
 --
 *+QEM<year><month><checksum>+*::	Query device for energy produced in the specific month *+<month>+* (in +MM+ format) of year *+<year>+* (in +YYYY+ format).
 					*+<checksum>+* is 0-padded to 3 bytes length.
@@ -1725,6 +1732,7 @@ Revision History
 
 [cols="1^.^,2^.^,5.^,2.^",align="center"]
 |====
-|Rev.	|Date		|Description		|Author
-|1.0	|02/2014	|Initial release	|Daniele Pezzini
+|Rev.	|Date		|Description						|Author
+|1.0	|02/2014	|Initial release					|Daniele Pezzini
+|1.1	|06/2015	|Update some commands/queries with real device data	|Daniele Pezzini
 |====
