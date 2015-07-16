@@ -1,7 +1,7 @@
 Voltronic Power SUNNY Protocol
 ==============================
 Daniele Pezzini <hyouko@gmail.com>
-v1.1, June 2015
+v1.2, July 2015
 
 // Default options
 // - Labeled lists
@@ -110,6 +110,7 @@ Where:
 
 	- +0+ -> DC-to-AC
 	- +1+ -> AC-to-DC
+	- +2+ -> *{sp}unknown *
 |1	.2+a|Line direction:
 
 	- +00+ -> both taking from grid and feeding grid
@@ -186,13 +187,17 @@ Error/Warning status
 --
 .Reply
 ----
-(b0b2..b23b24
+(b0b2..b126b127
 ----
 .e.g.
 ----
-(1000000010000000000000000
+(--0000000000--00000---00000-----------------------------------------------------------------------------------------------------
 ----
-Each bit set to *+1+* corresponds to an error/warning. *+0+* means no warning/error -> see <<warnings,'Warnings'>>
+Each bit corresponds to an error/warning (-> see <<warnings,'Warnings'>>) and its value signals the status of the error/warning:
+
+- +1+ -> error/warning present;
+- +0+ -> no warning/error;
+- +-+ -> specific warning/error not supported.
 --
 *+QPIFS+*::			Query device for faults and their type.
 				Available only if <<fw,FW version>> is < in <<protocol,P15>>: 0.9; in <<protocol,P16>>: 0.3.
@@ -394,17 +399,17 @@ Generator as AC source option (<<protocol,P16>> only)
 --
 .Reply
 ----
-(?x
+(AB
 ----
 .e.g.
 ----
-(?1
+(00
 ----
 
 Where:
 
-+?+::	*{sp}unknown character *
-+x+::	Option status:
++A+::	*{sp}unknown *
++B+::	Option status:
 	- +0+ -> disabled
 	- +1+ -> enabled
 --
@@ -460,16 +465,16 @@ Where:
 --
 .Reply
 ----
-(???????:AAAAAA
+(SVERFW2:AAAAA.AA
 ----
 .e.g.
 ----
-(???????:000.20
+(SVERFW2:00000.48
 ----
 
 Where:
 
-+AAAAAA+::	Firmware version
++AAAAA.AA+::	Firmware version
 --
 *+QVFW+*::		Query device for main CPU processor version
 +
@@ -480,7 +485,7 @@ Where:
 ----
 .e.g.
 ----
-(VERFW:00001.00
+(VERFW:00003.10
 ----
 
 Where:
@@ -496,7 +501,7 @@ Where:
 ----
 .e.g.
 ----
-(VERFW2:00000.20
+(VERFW2:00000.31
 ----
 
 Where:
@@ -615,42 +620,43 @@ Where:
 --
 .Reply
 ----
-(AAA BBBBBB CCC D/E FFF GGG HHH III
+(AAAAAAAAAAAAAAA BBBBBBB CC D/E FFF GGG HH II.I
 ----
 .e.g.
 ----
-(000 ##1001 092 1/1 004 005 006 007
+(###########PV3K ###3000 99 1/1 360 230 04 12.0
 ----
 
 Where:
 
-+AAA+::		*{sp}unknown *
-+BBBBBB+::	Output rated power (W, 6 characters, filled with spaces or +#+)
-+CCC+::		Output power factor (%)
-+D+::		Input phases
-+E+::		Output phases
-+FFF+::		Nominal input voltage (V)
-+GGG+::		Nominal output voltage (V)
-+HHH+::		Number of batteries
-+III+::		Nominal battery voltage (V)
++AAAAAAAAAAAAAAA+::	Device model (15 characters, filled with spaces or +#+)
++BBBBBBB+::		Output rated power (W, 7 characters, filled with spaces or +#+)
++CC+::			Output power factor (%)
++D+::			Input phases
++E+::			Output phases
++FFF+::			Nominal input voltage (V)
++GGG+::			Nominal output voltage (V)
++HH+::			Number of batteries
++II.I+::		Nominal battery voltage (V)
 --
 *+I+*::			Query device for rated informations #3
 +
 --
 .Reply
 ----
-(<unknown>DSP:AAAAAAAA<unknown>MCU:BB-BB-BB<unknown>
+(DSP:AA-AA-AA,BB:BB MCU:CC-CC-CC,DD:DD
 ----
 .e.g.
 ----
-(<unknown>DSP:12345678<unknown>MCU:13-05-06<unknown>
+(DSP:14-03-03,14:30 MCU:14-01-15,17:20
 ----
 
 Where:
 
-+<unknown>+::	*{sp}unknown characters *
-+AAAAAAAA+::	DSP version
-+BB-BB-BB+::	MCU version (date in +YY-MM-DD+ format?)
++AA-AA-AA+::	DSP manufacturing date (in +YY-MM-DD+ format)
++BB:BB+::	DSP manufacturing time (in +hh:mm+ format)
++CC-CC-CC+::	MCU manufacturing date (in +YY-MM-DD+ format)
++DD:DD+::	MCU manufacturing date (in +hh:mm+ format)
 --
 
 
@@ -696,20 +702,21 @@ Where:
 --
 .Reply
 ----
-(AAA BBB CCC DDD EEE
+(AA.A BB.B CCC DD.D EE.E FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 ----
 .e.g.
 ----
-(100 101 102 103 104
+(25.0 54.0 060 42.0 56.0 --------------------------------------
 ----
 
 Where:
 
-+AAA+::	<<bcd,Max battery-charging current>> (A)
-+BBB+::	<<bcd,Floating battery-charging voltage>> (V)
-+CCC+::	<<gwt,Waiting time before grid connection>> (seconds)
-+DDD+::	<<bdl,Cut-off battery-discharging voltage>> (V)
-+EEE+::	<<bcd,Bulk battery-charging voltage>> (V)
++AA.A+::	<<bcd,Max battery-charging current>> (A)
++BB.B+::	<<bcd,Floating battery-charging voltage>> (V)
++CCC+::		<<gwt,Waiting time before grid connection>> (seconds)
++DD.D+::	<<bdl,Cut-off battery-discharging voltage>> (V)
++EE.E+::	<<bcd,Bulk battery-charging voltage>> (V)
++F+..+F+::	*{sp}unknown *
 --
 
 
@@ -721,41 +728,42 @@ Limits
 --
 .Reply
 ----
-(AAA BBB CCC DDD EEE FFF GGG HHH III JJJ KKK LLL MMM NNN OOO PPP QQQ RRR SSS TTT UUU VVV WWW XXX YYY ZZZ
+(AAA.A BBB.B CCC.C DDD.D EE.E FF.F GG.G HH.H III JJJ KK.K LL.L MM.M NN.N OOO PPP QQQ RRR SSS TTT UUU VVV WWWWW XXXXX YY.Y ZZ.Z @@
 ----
 .e.g.
 ----
-(100 050 101 051 102 052 103 053 104 054 105 055 106 056 107 057 108 058 109 059 110 060 111 061 112 062
+(276.0 235.0 225.0 180.0 55.0 50.1 49.9 45.0 070 005 58.0 48.0 25.0 00.5 500 450 200 090 450 400 200 110 03000 00000 58.0 50.0 --
 ----
 
 Where:
 
-+AAA+::	Max <<gov,grid output high voltage>> (V) *and* (<<protocol,P16>> only) max <<giv,grid input high voltage>> (V)
-+BBB+::	Min <<gov,grid output high voltage>> (V) *and* (<<protocol,P16>> only) min <<giv,grid input high voltage>> (V)
-+CCC+::	Max <<gov,grid output low voltage>> (V) *and* (<<protocol,P16>> only) max <<giv,grid input low voltage>> (V)
-+DDD+::	Min <<gov,grid output low voltage>> (V) *and* (<<protocol,P16>> only) min <<giv,grid input low voltage>> (V)
-+EEE+::	Max <<gof,grid output high frequency>> (Hz) *and* (<<protocol,P16>> only) max <<gif,grid input high frequency>> (Hz)
-+FFF+::	Min <<gof,grid output high frequency>> (Hz) *and* (<<protocol,P16>> only) min <<gif,grid input high frequency>> (Hz)
-+GGG+::	Max <<gof,grid output low frequency>> (Hz) *and* (<<protocol,P16>> only) max <<gif,grid input low frequency>> (Hz)
-+HHH+::	Min <<gof,grid output low frequency>> (Hz) *and* (<<protocol,P16>> only) min <<gif,grid input low frequency>> (Hz)
-+III+::	Max <<gwt,grid wait time>> (seconds)
-+JJJ+::	Min <<gwt,grid wait time>> (seconds)
-+KKK+::	Max <<bcd,floating battery-charging voltage>> (V)
-+LLL+::	Min <<bcd,floating battery-charging voltage>> (V)
-+MMM+::	Max <<bcd,max battery-charging current>> (A)
-+NNN+::	Min <<bcd,max battery-charging current>> (A)
-+OOO+::	Max <<pviv,PV input high voltage>> (V)
-+PPP+::	Min <<pviv,PV input high voltage>> (V)
-+QQQ+::	Max <<pviv,PV input low voltage>> (V)
-+RRR+::	Min <<pviv,PV input low voltage>> (V)
-+SSS+::	Max <<mppv,MPP high voltage>> (V)
-+TTT+::	Min <<mppv,MPP high voltage>> (V)
-+UUU+::	Max <<mppv,MPP low voltage>> (V)
-+VVV+::	Min <<mppv,MPP low voltage>> (V)
-+WWW+::	*{sp}unknown *	(<<bdl,Max cut-off battery-discharging voltage>>?)
-+XXX+::	*{sp}unknown *	(<<bdl,Min cut-off battery-discharging voltage>>?)
-+YYY+::	Max <<bcd,bulk battery-charging voltage>> (V)
-+ZZZ+::	Min <<bcd,bulk battery-charging voltage>> (V)
++AAA.A+::	Max <<gov,grid output high voltage>> (V) *and* (<<protocol,P16>> only) max <<giv,grid input high voltage>> (V)
++BBB.B+::	Min <<gov,grid output high voltage>> (V) *and* (<<protocol,P16>> only) min <<giv,grid input high voltage>> (V)
++CCC.C+::	Max <<gov,grid output low voltage>> (V) *and* (<<protocol,P16>> only) max <<giv,grid input low voltage>> (V)
++DDD.D+::	Min <<gov,grid output low voltage>> (V) *and* (<<protocol,P16>> only) min <<giv,grid input low voltage>> (V)
++EE.E+::	Max <<gof,grid output high frequency>> (Hz) *and* (<<protocol,P16>> only) max <<gif,grid input high frequency>> (Hz)
++FF.F+::	Min <<gof,grid output high frequency>> (Hz) *and* (<<protocol,P16>> only) min <<gif,grid input high frequency>> (Hz)
++GG.G+::	Max <<gof,grid output low frequency>> (Hz) *and* (<<protocol,P16>> only) max <<gif,grid input low frequency>> (Hz)
++HH.H+::	Min <<gof,grid output low frequency>> (Hz) *and* (<<protocol,P16>> only) min <<gif,grid input low frequency>> (Hz)
++III+::		Max <<gwt,grid wait time>> (seconds)
++JJJ+::		Min <<gwt,grid wait time>> (seconds)
++KK.K+::	Max <<bcd,floating battery-charging voltage>> (V)
++LL.L+::	Min <<bcd,floating battery-charging voltage>> (V)
++MM.M+::	Max <<bcd,max battery-charging current>> (A)
++NN.N+::	Min <<bcd,max battery-charging current>> (A)
++OOO+::		Max <<pviv,PV input high voltage>> (V)
++PPP+::		Min <<pviv,PV input high voltage>> (V)
++QQQ+::		Max <<pviv,PV input low voltage>> (V)
++RRR+::		Min <<pviv,PV input low voltage>> (V)
++SSS+::		Max <<mppv,MPP high voltage>> (V)
++TTT+::		Min <<mppv,MPP high voltage>> (V)
++UUU+::		Max <<mppv,MPP low voltage>> (V)
++VVV+::		Min <<mppv,MPP low voltage>> (V)
++WWWWW+::	Max <<mop,maximum output power>> (W)
++XXXXX+::	Min <<mop,maximum output power>> (W)
++YY.Y+::	Max <<bcd,bulk battery-charging voltage>> (V)
++ZZ.Z+::	Min <<bcd,bulk battery-charging voltage>> (V)
++@@+::		*{sp}unknown *
 --
 
 
@@ -776,7 +784,7 @@ Grid output voltage
 ----
 .e.g.
 ----
-(100.0 050.0
+(264.5 184.0
 ----
 
 Where:
@@ -876,7 +884,7 @@ Grid wait time
 ----
 .e.g.
 ----
-(100
+(060
 ----
 
 Where:
@@ -949,7 +957,7 @@ Battery-discharging limits (<<protocol,P16>> only)
 ----
 .e.g.
 ----
-(10.0 10.1 10.2 10.3
+(48.0 48.0 48.0 49.4
 ----
 
 Where:
@@ -980,7 +988,7 @@ PV input voltage
 ----
 .e.g.
 ----
-(100 050
+(500 090
 ----
 
 Where:
@@ -1005,7 +1013,7 @@ MPP voltages
 ----
 .e.g.
 ----
-(100 050
+(450 120
 ----
 
 Where:
@@ -1180,7 +1188,7 @@ Grid input average voltage
 ----
 .e.g.
 ----
-(100 050
+(253 ---
 ----
 
 Where:
@@ -1347,16 +1355,16 @@ Where:
 --
 .Reply
 ----
-(AAA
+(AAAAA
 ----
 .e.g.
 ----
-(100
+(00004
 ----
 
 Where:
 
-+AAA+::	Energy produced in the specific hour *+<hour>+* at date *+<date>+* (Wh)
++AAAAA+::	Energy produced in the specific hour *+<hour>+* at date *+<date>+* (Wh)
 --
 *+QED<date><checksum>+*::		Query device for energy produced in the specific day at date *+<date>+* (in +YYYYMMDD+ format).
 					*+<checksum>+* is 0-padded to 3 bytes length.
@@ -1381,16 +1389,16 @@ Where:
 --
 .Reply
 ----
-(AAA
+(AAAAAAA
 ----
 .e.g.
 ----
-(100
+(0000000
 ----
 
 Where:
 
-+AAA+::	Energy produced in the specific month *+<month>+* in year *+<year>+* (Wh)
++AAAAAAA+::	Energy produced in the specific month *+<month>+* in year *+<year>+* (Wh)
 --
 *+QEY<year><checksum>+*::		Query device for energy produced in the specific year *+<year>+* (in +YYYY+ format).
 					*+<checksum>+* is 0-padded to 3 bytes length.
@@ -1398,16 +1406,16 @@ Where:
 --
 .Reply
 ----
-(AAA
+(AAAAAAAA
 ----
 .e.g.
 ----
-(100
+(00000000
 ----
 
 Where:
 
-+AAA+::	Energy produced in the specific year *+<year>+* (Wh)
++AAAAAAAA+::	Energy produced in the specific year *+<year>+* (Wh)
 --
 
 
@@ -1735,4 +1743,5 @@ Revision History
 |Rev.	|Date		|Description						|Author
 |1.0	|02/2014	|Initial release					|Daniele Pezzini
 |1.1	|06/2015	|Update some commands/queries with real device data	|Daniele Pezzini
+|1.2	|07/2015	|Update some commands/queries with real device data	|Daniele Pezzini
 |====
